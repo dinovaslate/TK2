@@ -1,11 +1,14 @@
 from django.contrib import messages
+from django.conf import settings
 from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
-from allauth.socialaccount.providers import registry
+from allauth.socialaccount.models import SocialApp
 
 from .forms import EmailAuthenticationForm, RegistrationForm
 
@@ -13,20 +16,33 @@ from .forms import EmailAuthenticationForm, RegistrationForm
 def _build_social_login_urls(request, process: str) -> dict[str, str]:
     """Return enabled social login URLs for the requested process."""
 
+    try:
+        current_site = get_current_site(request)
+    except Site.DoesNotExist:  # pragma: no cover - site misconfiguration
+        current_site = None
+
+    site_filter = {}
+    if current_site is not None:
+        site_filter = {"sites": current_site}
+    elif getattr(settings, "SITE_ID", None) is not None:
+        site_filter = {"sites__id": settings.SITE_ID}
+
+    available_providers = set(
+        SocialApp.objects.filter(provider__in=("google", "facebook", "apple"), **site_filter)
+        .values_list("provider", flat=True)
+    )
+
     urls: dict[str, str] = {}
     for provider_id in ("google", "facebook", "apple"):
-        try:
-            provider = registry.by_id(provider_id, request)
-        except Exception:  # pragma: no cover - provider not configured
-            continue
-
-        if provider is None:
+        if provider_id not in available_providers:
             continue
 
         try:
-            urls[provider_id] = provider.get_login_url(request, process=process)
-        except Exception:  # pragma: no cover - provider-specific failures
+            base_url = reverse("socialaccount_login", args=[provider_id])
+        except Exception:  # pragma: no cover - URL configuration issues
             continue
+
+        urls[provider_id] = f"{base_url}?process={process}"
 
     return urls
 
