@@ -141,7 +141,7 @@
       <div class="divider">Or Sign In With</div>
 
       <div class="row">
-        <button class="btn btn--ghost" title="Continue with Google">
+        <button class="btn btn--ghost" type="button" id="googleLogin" title="Continue with Google">
           <strong>G</strong>
         </button>
         <button class="btn btn--fb" title="Continue with Facebook">
@@ -167,6 +167,14 @@
         btn.setAttribute('aria-pressed', String(isPwd));
       })
     });
+
+    // Google continue button
+    const googleLoginBtn = document.getElementById('googleLogin');
+    if(googleLoginBtn){
+      googleLoginBtn.addEventListener('click', ()=>{
+        window.location.href = 'https://accounts.google.com/signin';
+      });
+    }
   </script>
 </body>
 </html>
