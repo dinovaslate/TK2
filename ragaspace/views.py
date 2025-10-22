@@ -5,7 +5,6 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 
-from allauth.exceptions import ProviderNotFound
 from allauth.socialaccount.providers import registry
 
 from .forms import EmailAuthenticationForm, RegistrationForm
@@ -18,7 +17,7 @@ def _build_social_login_urls(request, process: str) -> dict[str, str]:
     for provider_id in ("google", "facebook", "apple"):
         try:
             provider = registry.by_id(provider_id, request)
-        except ProviderNotFound:
+        except Exception:  # pragma: no cover - provider not configured
             continue
 
         if provider is None:
