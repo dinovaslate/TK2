@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RagaSpace — Dashboard</title>
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:#031522;
+      color:#eaf5ff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+    }
+    .panel{
+      background:#ffffff10;
+      padding:32px;
+      border-radius:18px;
+      border:1px solid #ffffff2a;
+      text-align:center;
+      max-width:420px;
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+    .panel a{
+      display:inline-block;
+      margin-top:18px;
+      padding:12px 20px;
+      border-radius:16px;
+      background:linear-gradient(180deg,#2ecf77,#1fa563);
+      color:#08301f;
+      font-weight:700;
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Welcome to RagaSpace</h1>
+    <p>Hi {{ request.user.first_name|default:request.user.username }}, you're now logged in.</p>
+    <a href="{% url 'ragaspace:logout' %}">Log out</a>
+  </div>
+</body>
+</html>
